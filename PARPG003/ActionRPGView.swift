@@ -36,12 +36,18 @@ class ActionRPGView: UIView {
         fieldView2 = fieldImage
     }
 
-    func startAnimation() {
+    func jumpAnimation() {
+        self.imageView?.transform = CGAffineTransform(translationX: 0, y: -50)
+
+        
         UIView.transition(with: imageView!, duration: 0.6, options: [ .curveEaseOut, .autoreverse], animations: ({
             self.imageView?.transform = CGAffineTransform(translationX: 0, y: -100)
         }), completion: ({ _ in
             self.imageView?.transform = CGAffineTransform(translationX: 0, y: 0)
         }))
+
+    }
+    func startAnimation() {
         
         if (onceFlag == false) {
             onceFlag = true

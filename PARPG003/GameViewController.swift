@@ -34,9 +34,9 @@ class GameViewController: UIViewController {
         puzzleView.setUIView(actionView: actionRPGView)
         
         for _ in 0..<25 {
-            let image: UIImageView = UIImageView()
-            self.view.addSubview(image)
-            puzzleView.addUIImageView(imageView: image)
+            let piece: PuzzlePiece = PuzzlePiece()
+            self.view.addSubview(piece)
+            puzzleView.addUIImageView(piece: piece)
         }
         
 //        if let view = self.view as! SKView? {
