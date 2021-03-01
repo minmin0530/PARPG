@@ -10,62 +10,185 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
-    
+    private var deleteFlag: Bool = false
+    private var fireFlag: Bool = false
+    private var jumpFlag: Bool = false
+    private var jumpSpeed: CGFloat = 0.0
+    private let JUMP_SPEED: CGFloat = 4.0
+    private let GRAVITY: CGFloat = 0.1
+    private let GROUND: CGFloat = 125.0
+    private var enemyImageView: UIImageView?
+    private var fireImageView: UIImageView?
+    private var imageView: UIImageView?
+    private var fieldView1: UIImageView?
+    private var fieldView2: UIImageView?
+
+    private var pieceArray: [PuzzlePiece] = []
+    private let IMAGE_SIZE: CGFloat = 64
+    private let PADDING: CGFloat = 8
+    private let IMAGE_ADJUST_SIZE: CGFloat = 48
+    private let IMAGE_SMALL_SIZE: CGFloat = 20
+    private let IMAGE_NAME: [String] = ["heart","quad","star","hexagon",]
+    private let FALL_SPEED: CGFloat = 4.0
+
+    private var actionRPGViewHeight: CGFloat?
+
     override func didMove(to view: SKView) {
-        
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
-        
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
-        
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
     }
+    
+    func addEnemyImage(image: UIImageView) {
+        enemyImageView = image
+        enemyImageView?.frame = CGRect(x: 250, y: 100, width: 50, height: 50)
+    }
+    func addFireImage(image: UIImageView) {
+        fireImageView = image
+        fireImageView?.frame = CGRect(x: 150, y: 100, width: 50, height: 50)
+    }
+
+    func addUIImageView(image: UIImageView) {
+        imageView = image
+        imageView?.frame = CGRect(x: 50, y: 100, width: 50, height: 50)
+        
+    }
+    func addFieldImage1(fieldImage: UIImageView) {
+        fieldView1 = fieldImage
+    }
+    func addFieldImage2(fieldImage: UIImageView) {
+        fieldView2 = fieldImage
+    }
+    func setActionRPGViewHeight(height: CGFloat) {
+        actionRPGViewHeight = height
+    }
+    func addUIImageView(piece: PuzzlePiece) {
+        piece.frame = CGRect(x: PADDING + CGFloat(pieceArray.count % 5) * IMAGE_SIZE,
+                                 y: PADDING + actionRPGViewHeight! + CGFloat( (pieceArray.count - pieceArray.count % 5) / 5) * IMAGE_SIZE,
+                                 width: IMAGE_ADJUST_SIZE,
+                                 height: IMAGE_ADJUST_SIZE)
+        
+        switch Int.random(in: 0...3) {
+        case 0:
+            piece.image = UIImage(named: ImageName.heart.rawValue)
+            piece.imageName = .heart
+            break
+        case 1:
+            piece.image = UIImage(named: ImageName.quad.rawValue)
+            piece.imageName = .quad
+            break
+        case 2:
+            piece.image = UIImage(named: ImageName.star.rawValue)
+            piece.imageName = .star
+            break
+        case 3:
+            piece.image = UIImage(named: ImageName.hexagon.rawValue)
+            piece.imageName = .hexagon
+            break
+        default:
+            break
+        }
+        piece.indexX = pieceArray.count % 5
+        piece.indexY = (pieceArray.count - pieceArray.count % 5) / 5
+        piece.touch = false
+        piece.fall = false
+        pieceArray.append(piece)
+
+    }
+
     
     
     func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
     }
     
     func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
+                
+        for image in pieceArray {
+            if 400 + pos.x > image.frame.minX * 2.5 &&
+                400 + pos.x < image.frame.maxX * 2.5 &&
+                4.0 * actionRPGViewHeight! - pos.y > image.frame.minY * 2.5 &&
+                4.0 * actionRPGViewHeight! - pos.y < image.frame.maxY * 2.5 {
+                image.frame = CGRect(x: image.frame.minX, y: image.frame.minY, width:IMAGE_SMALL_SIZE, height: IMAGE_SMALL_SIZE)
+                image.touch = true
+            }
+        } 
     }
     
     func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+        var imageName: ImageName? = nil
+        var touchCount: Int = 0
+        for image in pieceArray {
+            if image.touch == true {
+                if  imageName != nil && image.imageName != imageName {
+                    for image2 in pieceArray {
+                        image2.frame = CGRect(x: image2.frame.minX, y: image2.frame.minY, width:IMAGE_ADJUST_SIZE, height: IMAGE_ADJUST_SIZE)
+                        image2.touch = false
+                    }
+                    return
+                }
+                imageName = image.imageName
+                touchCount += 1
+            }
         }
         
+        if touchCount < 2 {
+            for image in pieceArray {
+                image.frame = CGRect(x: image.frame.minX, y: image.frame.minY, width:IMAGE_ADJUST_SIZE, height: IMAGE_ADJUST_SIZE)
+                image.touch = false
+            }
+            return
+        }
+        
+        var imageX: [Int] = [0,0,0,0,0]
+        for image in pieceArray {
+            if image.fall == true {
+//                let addX: Int = Int((actionRPGViewHeight! - image.frame.minY) / IMAGE_SIZE) + 1
+                imageX[image.indexX!] += 1
+            }
+        }
+        
+        
+        for image in pieceArray {
+            if image.touch == true {
+                imageX[image.indexX!] += 1
+                image.frame = CGRect(x: image.frame.minX, y: actionRPGViewHeight! - CGFloat(imageX[image.indexX!]) * IMAGE_SIZE, width: IMAGE_ADJUST_SIZE, height: IMAGE_ADJUST_SIZE)
+                image.touch = false
+                image.fall = true
+                deleteFlag = true
+                if imageName == ImageName.hexagon {
+                    jumpFlag = true
+                    jumpSpeed = JUMP_SPEED
+//                    actionRPGView?.jumpAnimation()
+                    
+                }
+                if imageName == ImageName.star {
+                    fireFlag = true
+//                    actionRPGView?.fireAnimation()
+                }
+                
+                switch Int.random(in: 0...3) {
+                case 0:
+                    image.image = UIImage(named: ImageName.heart.rawValue)
+                    image.imageName = .heart
+                    break
+                case 1:
+                    image.image = UIImage(named: ImageName.quad.rawValue)
+                    image.imageName = .quad
+                    break
+                case 2:
+                    image.image = UIImage(named: ImageName.star.rawValue)
+                    image.imageName = .star
+                    break
+                case 3:
+                    image.image = UIImage(named: ImageName.hexagon.rawValue)
+                    image.imageName = .hexagon
+                    break
+                default:
+                    break
+                }
+            }
+        }
+
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {        
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
     
@@ -83,6 +206,68 @@ class GameScene: SKScene {
     
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        fieldView1?.center.x -= 1
+        fieldView2?.center.x -= 1
+        if jumpFlag == true {
+            if imageView!.center.y > GROUND {
+                jumpSpeed = 0.0
+                jumpFlag = false
+                imageView!.center.y = GROUND
+            } else {
+                jumpSpeed -= GRAVITY
+                imageView?.center.y -= jumpSpeed
+            }
+        }
+
+
+        
+        if fireFlag == true {
+            fireImageView?.center.x += 1
+        }
+        
+        if deleteFlag == true {
+            var hitCount = 0
+            for image1 in pieceArray {
+                var hitFlag = false
+                if image1.frame.width == IMAGE_SMALL_SIZE {
+                    continue
+                }
+                for image2 in pieceArray {
+                    if image1 != image2 &&
+                        image2.frame.minY > image1.frame.maxY &&
+                        image2.frame.minY < image1.frame.maxY + PADDING * 2 &&
+                        image2.frame.minX == image1.frame.minX {
+                        hitFlag = true
+                        break
+                    }
+                }
+                if image1.frame.maxY > IMAGE_SIZE * 5 - PADDING + actionRPGViewHeight! {
+                    hitFlag = true
+                }
+                if hitFlag == false {
+                    var doubleFlag = false
+                    for image2 in pieceArray {
+                        if image1 != image2 &&
+                            image2.frame.minY > image1.frame.minY &&
+                            image2.frame.minY < image1.frame.maxY + PADDING * 2 &&
+                            image2.frame.minX == image1.frame.minX {
+                            doubleFlag = true
+                            break
+                        }
+                    }
+
+                    if doubleFlag == false {
+                        image1.center.y += FALL_SPEED
+                    }
+                } else {
+                    hitCount += 1
+                    image1.fall = false
+                }
+            }
+            
+            if hitCount >= pieceArray.count {
+                deleteFlag = false
+            }
+        }
     }
 }
