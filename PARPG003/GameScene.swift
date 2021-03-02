@@ -24,6 +24,7 @@ class GameScene: SKScene {
     private var fireImageViewArray: [UIImageView] = []
     private var shildTime: Int = 0
     private var shieldImageView: UIImageView?
+    private var holeImageView: UIImageView?
     private var imageView: UIImageView?
     private var fieldView1: UIImageView?
     private var fieldView2: UIImageView?
@@ -33,7 +34,7 @@ class GameScene: SKScene {
     private let PADDING: CGFloat = 8
     private let IMAGE_ADJUST_SIZE: CGFloat = 48
     private let IMAGE_SMALL_SIZE: CGFloat = 20
-    private let IMAGE_NAME: [String] = ["heart","quad","star","hexagon",]
+    private let IMAGE_NAME: [String] = ["heartp","shield","firep","jump",]
     private let FALL_SPEED: CGFloat = 4.0
 
     private var actionRPGViewHeight: CGFloat?
@@ -55,6 +56,10 @@ class GameScene: SKScene {
         shieldImageView = image
         image.isHidden = true
         image.frame = CGRect(x: 100, y: 100, width: 50, height: 50)
+    }
+    func addHoleImage(image: UIImageView) {
+        holeImageView = image
+        image.frame = CGRect(x: 200, y: 85, width: 70, height: 80)
     }
 
     func addUIImageView(image: UIImageView) {
@@ -83,16 +88,16 @@ class GameScene: SKScene {
             piece.imageName = .heart
             break
         case 1:
-            piece.image = UIImage(named: ImageName.quad.rawValue)
-            piece.imageName = .quad
+            piece.image = UIImage(named: ImageName.shield.rawValue)
+            piece.imageName = .shield
             break
         case 2:
-            piece.image = UIImage(named: ImageName.star.rawValue)
-            piece.imageName = .star
+            piece.image = UIImage(named: ImageName.fire.rawValue)
+            piece.imageName = .fire
             break
         case 3:
-            piece.image = UIImage(named: ImageName.hexagon.rawValue)
-            piece.imageName = .hexagon
+            piece.image = UIImage(named: ImageName.jump.rawValue)
+            piece.imageName = .jump
             break
         default:
             break
@@ -164,17 +169,17 @@ class GameScene: SKScene {
                 image.touch = false
                 image.fall = true
                 deleteFlag = true
-                if imageName == ImageName.hexagon {
+                if imageName == ImageName.jump {
                     jumpFlag = true
                     jumpSpeed = JUMP_SPEED
 //                    actionRPGView?.jumpAnimation()
                     
                 }
-                if imageName == ImageName.star {
+                if imageName == ImageName.fire {
                     fireFlag = true
 //                    actionRPGView?.fireAnimation()
                 }
-                if imageName == ImageName.quad {
+                if imageName == ImageName.shield {
                     shieldFlag = true
                 }
                 switch Int.random(in: 0...3) {
@@ -183,16 +188,16 @@ class GameScene: SKScene {
                     image.imageName = .heart
                     break
                 case 1:
-                    image.image = UIImage(named: ImageName.quad.rawValue)
-                    image.imageName = .quad
+                    image.image = UIImage(named: ImageName.shield.rawValue)
+                    image.imageName = .shield
                     break
                 case 2:
-                    image.image = UIImage(named: ImageName.star.rawValue)
-                    image.imageName = .star
+                    image.image = UIImage(named: ImageName.fire.rawValue)
+                    image.imageName = .fire
                     break
                 case 3:
-                    image.image = UIImage(named: ImageName.hexagon.rawValue)
-                    image.imageName = .hexagon
+                    image.image = UIImage(named: ImageName.jump.rawValue)
+                    image.imageName = .jump
                     break
                 default:
                     break
@@ -238,6 +243,8 @@ class GameScene: SKScene {
         if fieldView2!.frame.maxX < 0 {
             fieldView2?.center.x = SCREEN_WIDTH
         }
+        
+        holeImageView?.center.x -= 1
 
         if jumpFlag == true {
             if imageView!.center.y > GROUND {

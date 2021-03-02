@@ -18,6 +18,8 @@ class GameViewController: UIViewController {
         super.viewDidLoad()
 
         self.view.bringSubviewToFront(dragon)
+        let hole = UIImageView(image: UIImage(named: "hole"))
+        self.view.addSubview(hole)
         let shield = UIImageView(image: UIImage(named: "shield"))
         self.view.addSubview(shield)
         let fire1 = UIImageView(image: UIImage(named: "fire"))
@@ -45,6 +47,7 @@ class GameViewController: UIViewController {
                 
                 
                 scene.addUIImageView(image: dragon)
+                scene.addHoleImage(image: hole)
                 scene.addShieldImage(image: shield)
                 scene.addFireImage(image: fire1)
                 scene.addFireImage(image: fire2)

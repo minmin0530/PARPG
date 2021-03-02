@@ -8,10 +8,10 @@
 import UIKit
 
 enum ImageName: String {
-    case heart = "heart"
-    case quad = "quad"
-    case star = "star"
-    case hexagon = "hexagon"
+    case heart = "heartp"
+    case shield = "shield"
+    case fire = "firep"
+    case jump = "jump"
 }
 
 class PuzzlePiece: UIImageView {
