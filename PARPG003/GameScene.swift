@@ -11,14 +11,19 @@ import GameplayKit
 class GameScene: SKScene {
     
     private var deleteFlag: Bool = false
-    private var fireFlag: Bool = false
+    private var shieldFlag: Bool = false
+    private var fireFlagArray: [Bool] = []
     private var jumpFlag: Bool = false
     private var jumpSpeed: CGFloat = 0.0
     private let JUMP_SPEED: CGFloat = 4.0
     private let GRAVITY: CGFloat = 0.1
     private let GROUND: CGFloat = 125.0
+    private let SCREEN_WIDTH: CGFloat = 700
     private var enemyImageView: UIImageView?
-    private var fireImageView: UIImageView?
+    private var fireIndex: Int = 0
+    private var fireImageViewArray: [UIImageView] = []
+    private var shildTime: Int = 0
+    private var shieldImageView: UIImageView?
     private var imageView: UIImageView?
     private var fieldView1: UIImageView?
     private var fieldView2: UIImageView?
@@ -41,8 +46,15 @@ class GameScene: SKScene {
         enemyImageView?.frame = CGRect(x: 250, y: 100, width: 50, height: 50)
     }
     func addFireImage(image: UIImageView) {
-        fireImageView = image
-        fireImageView?.frame = CGRect(x: 150, y: 100, width: 50, height: 50)
+        fireImageViewArray.append(image)
+        image.isHidden = true
+        image.frame = CGRect(x: 100, y: 100, width: 50, height: 50)
+        fireFlagArray.append(false)
+    }
+    func addShieldImage(image: UIImageView) {
+        shieldImageView = image
+        image.isHidden = true
+        image.frame = CGRect(x: 100, y: 100, width: 50, height: 50)
     }
 
     func addUIImageView(image: UIImageView) {
@@ -144,7 +156,7 @@ class GameScene: SKScene {
             }
         }
         
-        
+        var fireFlag: Bool = false
         for image in pieceArray {
             if image.touch == true {
                 imageX[image.indexX!] += 1
@@ -162,7 +174,9 @@ class GameScene: SKScene {
                     fireFlag = true
 //                    actionRPGView?.fireAnimation()
                 }
-                
+                if imageName == ImageName.quad {
+                    shieldFlag = true
+                }
                 switch Int.random(in: 0...3) {
                 case 0:
                     image.image = UIImage(named: ImageName.heart.rawValue)
@@ -185,6 +199,16 @@ class GameScene: SKScene {
                 }
             }
         }
+        
+        if fireFlag == true {
+            fireFlagArray[fireIndex] = true
+            fireIndex += 1
+            if fireIndex >= fireImageViewArray.count {
+                fireIndex = 0
+            }
+
+        }
+        
 
     }
     
@@ -208,6 +232,13 @@ class GameScene: SKScene {
     override func update(_ currentTime: TimeInterval) {
         fieldView1?.center.x -= 1
         fieldView2?.center.x -= 1
+        if fieldView1!.frame.maxX < 0 {
+            fieldView1?.center.x = SCREEN_WIDTH
+        }
+        if fieldView2!.frame.maxX < 0 {
+            fieldView2?.center.x = SCREEN_WIDTH
+        }
+
         if jumpFlag == true {
             if imageView!.center.y > GROUND {
                 jumpSpeed = 0.0
@@ -219,10 +250,26 @@ class GameScene: SKScene {
             }
         }
 
+        if shieldFlag == true {
+            shieldImageView?.isHidden = false
+            shildTime += 1
+            if shildTime > 100 {
+                shildTime = 0
+                shieldFlag = false
+                shieldImageView?.isHidden = true
+            }
+        }
 
-        
-        if fireFlag == true {
-            fireImageView?.center.x += 1
+        for i in 0..<fireImageViewArray.count {
+            if fireFlagArray[i] == true {
+                fireImageViewArray[i].isHidden = false
+                fireImageViewArray[i].center.x += 1
+                if fireImageViewArray[i].center.x > SCREEN_WIDTH {
+                    fireFlagArray[i] = false
+                    fireImageViewArray[i].isHidden = true
+                    fireImageViewArray[i].center.x = 0
+                }
+            }
         }
         
         if deleteFlag == true {
