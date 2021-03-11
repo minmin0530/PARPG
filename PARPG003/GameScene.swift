@@ -276,6 +276,16 @@ class GameScene: SKScene {
                     fireImageViewArray[i].isHidden = true
                     fireImageViewArray[i].center.x = 0
                 }
+                if fireImageViewArray[i].center.x > enemyImageView!.center.x &&
+                    fireImageViewArray[i].center.x < enemyImageView!.center.x + IMAGE_ADJUST_SIZE {
+                    fireFlagArray[i] = false
+                    fireImageViewArray[i].isHidden = true
+                    fireImageViewArray[i].center.x = 0
+
+                    enemyImageView?.isHidden = true
+                    enemyImageView?.center.x = 9999
+                
+                }
             }
         }
         
