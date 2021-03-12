@@ -10,7 +10,7 @@ import UIKit
 enum ImageName: String {
     case heart = "heartp"
     case shield = "shield"
-    case fire = "firep"
+    case fire = "fire2"
     case jump = "jump"
 }
 

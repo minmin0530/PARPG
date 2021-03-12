@@ -13,6 +13,7 @@ class GameScene: SKScene {
     private var deleteFlag: Bool = false
     private var shieldFlag: Bool = false
     private var fireFlagArray: [Bool] = []
+    private var fallFlag: Bool = false
     private var jumpFlag: Bool = false
     private var jumpSpeed: CGFloat = 0.0
     private let JUMP_SPEED: CGFloat = 4.0
@@ -24,6 +25,7 @@ class GameScene: SKScene {
     private var fireImageViewArray: [UIImageView] = []
     private var shildTime: Int = 0
     private var shieldImageView: UIImageView?
+    private var heartImageArray: [UIImageView] = []
     private var holeImageView: UIImageView?
     private var imageView: UIImageView?
     private var fieldView1: UIImageView?
@@ -34,7 +36,7 @@ class GameScene: SKScene {
     private let PADDING: CGFloat = 8
     private let IMAGE_ADJUST_SIZE: CGFloat = 48
     private let IMAGE_SMALL_SIZE: CGFloat = 20
-    private let IMAGE_NAME: [String] = ["heartp","shield","firep","jump",]
+    private let IMAGE_NAME: [String] = ["heartp","shield","fire2","jump",]
     private let FALL_SPEED: CGFloat = 4.0
 
     private var actionRPGViewHeight: CGFloat?
@@ -56,6 +58,10 @@ class GameScene: SKScene {
         shieldImageView = image
         image.isHidden = true
         image.frame = CGRect(x: 100, y: 100, width: 50, height: 50)
+    }
+    func addHeartImage(image: UIImageView) {
+        heartImageArray.append(image)
+        image.frame = CGRect(x: heartImageArray.count * 30, y: 0, width: 30, height: 30)
     }
     func addHoleImage(image: UIImageView) {
         holeImageView = image
@@ -245,6 +251,20 @@ class GameScene: SKScene {
         }
         
         holeImageView?.center.x -= 1
+        if holeImageView!.center.x > imageView!.center.x + IMAGE_ADJUST_SIZE / 2 &&
+        holeImageView!.center.x < imageView!.center.x + IMAGE_ADJUST_SIZE &&
+            holeImageView!.center.y >= imageView!.center.y &&
+            holeImageView!.center.y < imageView!.center.y + 1
+        {
+            fallFlag = true
+        }
+
+        if fallFlag == true {
+            imageView?.center.y += 10
+            if imageView!.center.y > actionRPGViewHeight! {
+                imageView?.isHidden = true
+            }
+        }
 
         if jumpFlag == true {
             if imageView!.center.y > GROUND {
