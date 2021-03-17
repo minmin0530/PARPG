@@ -65,7 +65,7 @@ class GameScene: SKScene {
     }
     func addHoleImage(image: UIImageView) {
         holeImageView = image
-        image.frame = CGRect(x: 200, y: 85, width: 70, height: 80)
+        image.frame = CGRect(x: 400, y: 85, width: 70, height: 80)
     }
 
     func addUIImageView(image: UIImageView) {
